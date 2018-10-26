@@ -1,0 +1,16 @@
+plugins {
+    id 'java'
+}
+
+group 'recruitment-task-for-crossword-cybersecurity'
+version '0.1-SNAPSHOT'
+
+sourceCompatibility = 11
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile 'org.junit.jupiter:junit-jupiter-api:5.3.1'
+}
