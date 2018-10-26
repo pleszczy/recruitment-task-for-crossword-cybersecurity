@@ -2,11 +2,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Account {
     private final String id;
-    private AtomicInteger balance = new AtomicInteger();
-
-    public Account(String id) {
-        this.id = id;
-    }
+    private AtomicInteger balance;
 
     public Account(String id, int balance) {
         this.id = id;
@@ -24,9 +20,5 @@ public class Account {
 
     public int getBalance() {
         return balance.get();
-    }
-
-    public void setBalance(int balance) {
-        this.balance.set(balance);
     }
 }

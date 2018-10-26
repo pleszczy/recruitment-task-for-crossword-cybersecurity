@@ -15,7 +15,7 @@ class AccountTest {
 
     @BeforeAll
     static void beforeAll() {
-        fixedThreadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 2);
+        fixedThreadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 20);
     }
 
     @AfterEach
@@ -25,11 +25,11 @@ class AccountTest {
 
     @Test
     void should_transfer_between_accounts_atomically_and_with_no_deadlocks() throws ExecutionException, InterruptedException {
-        Account accountA = new Account( "A", 1_000_000);
-        Account accountB = new Account( "B", 2_000_000);
+        Account accountA = new Account( "A", 10_000_000);
+        Account accountB = new Account( "B", 1_000_000);
 
         CompletableFuture.allOf(IntStream
-                .range(0, 1_000_000)
+                .range(0, 10_000_000)
                 .parallel()
                 .mapToObj(value -> List.of(
                         CompletableFuture.runAsync(() -> {
@@ -44,8 +44,8 @@ class AccountTest {
                 .toArray(CompletableFuture[]::new)).get();
 
         Assertions.assertAll(
-                () -> assertEquals(0, accountA.getBalance(), "Expected account A to have 1 000 000"),
-                () ->  assertEquals(3_000_000, accountB.getBalance(), "Expected account B to have 1 000 000")
+                () -> assertEquals(0, accountA.getBalance(), "Expected account A to have 0"),
+                () ->  assertEquals(11_000_000, accountB.getBalance(), "Expected account B to have 11 000 000")
         );
     }
 
