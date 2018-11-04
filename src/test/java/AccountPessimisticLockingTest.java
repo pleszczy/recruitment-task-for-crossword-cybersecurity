@@ -11,14 +11,14 @@ import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
-class AccountTest {
+class AccountPessimisticLockingTest {
     private static ExecutorService threadPool;
 
     @BeforeAll
     static void beforeAll() {
-        threadPool = Executors.newCachedThreadPool();
+        threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     }
 
     @AfterEach
@@ -28,8 +28,8 @@ class AccountTest {
 
     @Test
     void should_transfer_between_accounts_atomically_and_with_no_deadlocks() throws ExecutionException, InterruptedException {
-        Account accountA = new Account("A", 40_000_031);
-        Account accountB = new Account("B", 1_000_031);
+        AccountPessimisticLocking accountA = new AccountPessimisticLocking("A", 40_000_031);
+        AccountPessimisticLocking accountB = new AccountPessimisticLocking("B", 1_000_031);
         List<Supplier<CompletableFuture>> accountTransferFactory = List.of(() -> CompletableFuture.runAsync(() -> {
             accountA.transfer(accountB, 2);
             accountB.transfer(accountA, 1);
@@ -39,13 +39,14 @@ class AccountTest {
         }, threadPool));
 
         CompletableFuture.allOf(IntStream
-                .range(0, 41_000_000)
+                .range(0, 11_000_000)
                 .mapToObj(it -> accountTransferFactory.get(it % 2).get())
                 .toArray(CompletableFuture[]::new)).get();
 
         Assertions.assertAll(
-                () -> assertEquals(1, accountA.getBalance(), "Expected account A to have 1"),
-                () -> assertEquals(41000061, accountB.getBalance(), "Expected account B to have 41 000 061")
+                () -> assertEquals(29000031, accountA.getBalance(), "Expected account A to have 19 000 031"),
+                () -> assertEquals(12000031, accountB.getBalance(), "Expected account B to have 12 0000 31")
         );
     }
+
 }
